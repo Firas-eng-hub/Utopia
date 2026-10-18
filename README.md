@@ -226,6 +226,13 @@
 see SETUP_GUIDE.md
 Full Documentation in docs folder
 
+## Deploy online
+
+See [the Vercel and backend deployment guide](docs/DEPLOYMENT.md) to host the
+frontend on Vercel and provision PostgreSQL, the API, and persistent resume
+storage on Render. The repository includes `vercel.json`, `render.yaml`, and a
+production backend container. Hosting requires your provider accounts and API keys.
+
 ## 🎉 Acknowledgments
 
 - **FastAPI** - For the excellent modern Python web framework

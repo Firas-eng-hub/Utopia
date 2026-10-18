@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
     """
     # Startup
     logger.info("Starting UtopiaHire API...")
-    logger.info(f"Database URL: {settings.DATABASE_URL}")
+    logger.info("Database configuration loaded")
     logger.info(f"CORS Origins: {settings.BACKEND_CORS_ORIGINS}")
     
     # Test database connection
@@ -155,6 +155,16 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 
 # Health check endpoints
+@app.get("/ready", tags=["Health"])
+async def readiness_check():
+    """Fail deployment readiness when the database cannot serve requests."""
+    try:
+        db_manager.get_db().execute_query("SELECT COUNT(*) FROM users")
+    except Exception:
+        return JSONResponse(status_code=503, content={"status": "unavailable"})
+    return {"status": "ready"}
+
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     """Basic health check endpoint"""

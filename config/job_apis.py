@@ -9,20 +9,20 @@ from typing import Dict, Optional
 # API Credentials
 API_CREDENTIALS = {
     'serpapi': {
-        'api_key': '18610838c49525ce1cbb77e2952480d6a2b4b02a618b8787a9e3a94da0e5a3ae',
+        'api_key': os.getenv('SERPAPI_API_KEY', ''),
         'endpoint': 'https://serpapi.com/search',
         'free_limit': 100,  # searches per month
         'priority': 1  # Try first
     },
     'linkedin_rapidapi': {
-        'api_key': '6554b3f7f8msh9faf98ba1b2a94fp175d5fjsn0dea53747946',
+        'api_key': os.getenv('LINKEDIN_RAPIDAPI_KEY', ''),
         'host': 'linkedin-job-search-api.p.rapidapi.com',
         'endpoint': 'https://linkedin-job-search-api.p.rapidapi.com/active-jb-1h',
         'free_limit': 500,  # requests per month
         'priority': 2  # Fallback #1
     },
     'jsearch_rapidapi': {
-        'api_key': '6554b3f7f8msh9faf98ba1b2a94fp175d5fjsn0dea53747946',
+        'api_key': os.getenv('JSEARCH_API_KEY', ''),
         'host': 'jsearch.p.rapidapi.com',
         'endpoint': 'https://jsearch.p.rapidapi.com/search',
         'free_limit': 250,  # requests per month

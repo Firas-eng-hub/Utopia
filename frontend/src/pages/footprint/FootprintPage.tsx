@@ -6,6 +6,7 @@ import GitHubContributionGraph from '../../components/footprint/GitHubContributi
 import ActivityChart from '../../components/footprint/ActivityChart';
 import RecommendationsList from '../../components/footprint/RecommendationsList';
 import FootprintScanForm from '../../components/footprint/FootprintScanForm';
+import { API_BASE_URL } from '../../services/api-config';
 
 interface FootprintScan {
   id: number;
@@ -76,7 +77,6 @@ export default function FootprintPage() {
   const fetchFootprintData = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1';
       
       // First, try to get scan history
       const historyResponse = await fetch(`${API_BASE_URL}/footprint/history?limit=10`, {

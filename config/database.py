@@ -7,7 +7,7 @@ import psycopg2
 from psycopg2 import pool
 from psycopg2.extras import RealDictCursor
 import os
-from urllib.parse import urlparse
+from psycopg2.extensions import parse_dsn
 from dotenv import load_dotenv
 from typing import Optional, Dict, List, Any
 import logging
@@ -28,15 +28,13 @@ def get_db_config() -> Dict[str, Any]:
     database_url = os.getenv('DATABASE_URL')
     
     if database_url:
-        # Parse DATABASE_URL (e.g., postgresql://user:password@host:port/dbname)
-        parsed = urlparse(database_url)
-        return {
-            'host': parsed.hostname or 'localhost',
-            'port': str(parsed.port or 5432),
-            'database': parsed.path.lstrip('/') if parsed.path else 'utopiahire',
-            'user': parsed.username or '',
-            'password': parsed.password or ''
-        }
+        # Preserve hosted-database options such as sslmode and decode credentials.
+        parsed = parse_dsn(database_url)
+        parsed['database'] = parsed.pop('dbname', 'utopiahire')
+        parsed.setdefault('host', 'localhost')
+        parsed.setdefault('port', '5432')
+        parsed.setdefault('user', '')
+        return parsed
     else:
         # Fallback to individual env vars
         return {

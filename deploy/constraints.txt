@@ -1,0 +1,4 @@
+# passlib 1.7.4 requires the older bcrypt interface.
+bcrypt==3.2.2
+# spaCy 3.7/thinc wheels were built against the NumPy 1.x ABI.
+numpy==1.26.4

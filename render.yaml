@@ -1,0 +1,40 @@
+# Creates a paid backend, persistent uploads disk, and PostgreSQL database.
+# Review the plans and prices in Render before creating the Blueprint.
+services:
+  - type: web
+    name: utopiahire-api
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    dockerfilePath: ./deploy/Dockerfile
+    dockerContext: .
+    healthCheckPath: /ready
+    disk:
+      name: resume-storage
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: utopiahire-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: RESUME_UPLOAD_DIR
+        value: /var/data/resumes
+
+databases:
+  - name: utopiahire-db
+    region: frankfurt
+    plan: basic-256mb
+    databaseName: utopiahire
+    user: utopiahire
+    ipAllowList: []
