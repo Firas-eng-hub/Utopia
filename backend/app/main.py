@@ -3,9 +3,10 @@ UtopiaHire API - Main Application
 FastAPI application entry point with all routers and middleware
 """
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 from contextlib import asynccontextmanager
 import time
@@ -209,6 +210,8 @@ async def health_check_v1():
 @app.get("/", tags=["Root"])
 async def root():
     """Root endpoint with API information"""
+    if serve_frontend:
+        return FileResponse(frontend_dist / "index.html")
     return {
         "message": "Welcome to UtopiaHire API",
         "version": settings.VERSION,
@@ -232,6 +235,29 @@ try:
     logger.info("✅ Footprint Scanner module loaded")
 except Exception as e:
     logger.warning(f"⚠️  Footprint Scanner module not loaded: {e}")
+
+
+# The production container can serve the React app and API from one origin.
+# API routes are registered first; unknown API paths must retain a JSON 404.
+serve_frontend = os.getenv("SERVE_FRONTEND", "false").lower() == "true"
+frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+if serve_frontend:
+    if not (frontend_dist / "index.html").is_file():
+        raise RuntimeError("SERVE_FRONTEND requires a built frontend/dist directory")
+    app.mount("/assets", StaticFiles(directory=frontend_dist / "assets"), name="assets")
+
+    @app.get("/{frontend_path:path}", include_in_schema=False)
+    async def frontend_page(frontend_path: str):
+        if frontend_path == "api" or frontend_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not found")
+        candidate = (frontend_dist / frontend_path).resolve()
+        if not candidate.is_relative_to(frontend_dist.resolve()):
+            raise HTTPException(status_code=404, detail="Not found")
+        if candidate.is_file():
+            return FileResponse(candidate)
+        if Path(frontend_path).suffix:
+            raise HTTPException(status_code=404, detail="Not found")
+        return FileResponse(frontend_dist / "index.html")
 
 
 if __name__ == "__main__":

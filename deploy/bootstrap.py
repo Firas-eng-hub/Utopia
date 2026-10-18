@@ -21,12 +21,27 @@ def bootstrap():
                     )
                 cursor.execute("CREATE TABLE deployment_schema_versions (version INTEGER PRIMARY KEY)")
             cursor.execute("SELECT 1 FROM deployment_schema_versions WHERE version = 1")
-            if cursor.fetchone():
-                print("Deployment schema is current; data preserved")
-                return
-            cursor.execute(Path(__file__).with_name("schema.sql").read_text())
-            cursor.execute("INSERT INTO deployment_schema_versions (version) VALUES (1)")
-    print("Deployment schema initialized")
+            if not cursor.fetchone():
+                cursor.execute(Path(__file__).with_name("schema.sql").read_text())
+                cursor.execute("INSERT INTO deployment_schema_versions (version) VALUES (1)")
+            cursor.execute("SELECT 1 FROM deployment_schema_versions WHERE version = 2")
+            if not cursor.fetchone():
+                cursor.execute("ALTER TABLE resumes ADD COLUMN IF NOT EXISTS file_content BYTEA")
+                cursor.execute("INSERT INTO deployment_schema_versions (version) VALUES (2)")
+            cursor.execute("SELECT 1 FROM deployment_schema_versions WHERE version = 3")
+            if not cursor.fetchone():
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS resume_enhancements (
+                        id SERIAL PRIMARY KEY,
+                        resume_id INTEGER NOT NULL UNIQUE REFERENCES resumes(id) ON DELETE CASCADE,
+                        enhancement_type VARCHAR(50),
+                        suggestions_count INTEGER DEFAULT 0,
+                        file_path TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
+                cursor.execute("INSERT INTO deployment_schema_versions (version) VALUES (3)")
+    print("Deployment schema is current; existing data preserved")
 
 
 if __name__ == "__main__":

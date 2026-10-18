@@ -230,8 +230,11 @@ Full Documentation in docs folder
 
 See [the Vercel and backend deployment guide](docs/DEPLOYMENT.md) to host the
 frontend on Vercel and provision PostgreSQL, the API, and persistent resume
-storage on Render. The repository includes `vercel.json`, `render.yaml`, and a
+storage on Render. The free deployment stores resume files in PostgreSQL and its
+database expires after 30 days. The repository includes `vercel.json`, `render.yaml`, and a
 production backend container. Hosting requires your provider accounts and API keys.
+The Render container also serves the frontend, so the entire application can run
+at one Render HTTPS URL when Vercel access is unavailable.
 
 ## 🎉 Acknowledgments
 

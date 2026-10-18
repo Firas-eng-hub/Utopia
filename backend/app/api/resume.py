@@ -14,12 +14,13 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, List
+from urllib.parse import quote
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from typing import Optional, List
 from datetime import datetime
 import os
@@ -83,6 +84,16 @@ UPLOAD_DIR = get_upload_dir()
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 ALLOWED_EXTENSIONS = {'.pdf', '.docx', '.doc'}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+DATABASE_FILE_STORAGE = os.getenv("RESUME_STORAGE", "filesystem") == "database"
+
+
+def restore_resume_file(resume):
+    """Recover a cached source file when a free host replaces its filesystem."""
+    file_path = Path(resume['file_path'])
+    if not file_path.exists() and resume.get('file_content') is not None:
+        file_path = UPLOAD_DIR / Path(resume['file_path']).name
+        file_path.write_bytes(bytes(resume['file_content']))
+    return file_path
 
 
 @router.post("/upload", response_model=ResumeUploadResponse, status_code=status.HTTP_201_CREATED)
@@ -165,7 +176,8 @@ async def upload_resume(
                 "parsed_text": parsed_data.get('raw_text', ''),
                 "parsed_data": Json(parsed_data_to_store),  # JSONB field
                 "word_count": parsed_data.get('metadata', {}).get('word_count', 0),
-                "uploaded_at": datetime.utcnow()
+                "uploaded_at": datetime.utcnow(),
+                **({"file_content": content} if DATABASE_FILE_STORAGE else {})
             }
         )
         
@@ -686,6 +698,13 @@ async def download_original_resume(
         )
     
     # Check if file exists
+    if resume.get('file_content') is not None:
+        filename = resume.get('filename', 'resume.pdf')
+        return Response(
+            content=bytes(resume['file_content']),
+            media_type='application/octet-stream',
+            headers={'Content-Disposition': f"attachment; filename*=UTF-8''{quote(filename, safe='')}"}
+        )
     file_path = Path(resume['file_path'])
     if not file_path.exists():
         raise HTTPException(
@@ -733,7 +752,7 @@ async def download_enhanced_resume(
         )
     
     # Check if original file exists
-    original_path = Path(resume['file_path'])
+    original_path = restore_resume_file(resume)
     if not original_path.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

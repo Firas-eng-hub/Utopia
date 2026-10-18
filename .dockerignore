@@ -54,6 +54,10 @@ tests/
 
 # Node modules (for frontend, handled in its own Dockerfile)
 node_modules/
+**/node_modules/
+frontend/dist/
+**/.env
+**/.env.*
 
 # OS files
 .DS_Store

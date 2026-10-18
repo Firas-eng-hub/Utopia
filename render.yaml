@@ -1,18 +1,13 @@
-# Creates a paid backend, persistent uploads disk, and PostgreSQL database.
-# Review the plans and prices in Render before creating the Blueprint.
+# Free deployment. Render's free PostgreSQL database expires after 30 days.
 services:
   - type: web
     name: utopiahire-api
     runtime: docker
-    plan: starter
+    plan: free
     region: frankfurt
     dockerfilePath: ./deploy/Dockerfile
     dockerContext: .
     healthCheckPath: /ready
-    disk:
-      name: resume-storage
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -26,6 +21,8 @@ services:
         sync: false
       - key: GROQ_API_KEY
         sync: false
+      - key: RESUME_STORAGE
+        value: database
       - key: GROQ_MODEL
         value: llama-3.3-70b-versatile
       - key: RESUME_UPLOAD_DIR
@@ -34,7 +31,7 @@ services:
 databases:
   - name: utopiahire-db
     region: frankfurt
-    plan: basic-256mb
+    plan: free
     databaseName: utopiahire
     user: utopiahire
     ipAllowList: []

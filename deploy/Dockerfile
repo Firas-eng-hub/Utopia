@@ -1,4 +1,13 @@
 # syntax=docker/dockerfile:1
+FROM node:24-alpine AS frontend
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN --mount=type=secret,id=build_ca,mode=0444 \
+    if [ -f /run/secrets/build_ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/build_ca; fi; \
+    npm ci --no-audit --no-fund
+COPY frontend/ ./
+RUN npm run build
+
 FROM python:3.11-slim AS builder
 WORKDIR /app
 RUN python -m venv /opt/venv
@@ -14,6 +23,7 @@ ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     NLTK_DATA=/opt/nltk_data \
+    SERVE_FRONTEND=true \
     RESUME_UPLOAD_DIR=/var/data/resumes
 WORKDIR /app
 RUN --mount=type=secret,id=build_ca,mode=0444 \
@@ -34,6 +44,7 @@ COPY backend/ ./backend/
 COPY config/ ./config/
 COPY utils/ ./utils/
 COPY deploy/ ./deploy/
+COPY --from=frontend /frontend/dist ./frontend/dist
 RUN chmod -R a+rX /app
 EXPOSE 8000
 CMD ["bash", "deploy/start.sh"]

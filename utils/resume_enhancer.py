@@ -120,7 +120,14 @@ class ResumeEnhancer:
         logger.info(f"Starting resume enhancement... (AI: {self.use_ai_models})")
         
         sections = parsed_resume.get('sections', {})
-        structured_data = parsed_resume.get('structured_data', {})
+        structured_data = dict(parsed_resume.get('structured_data', {}))
+        # The current parser groups skills by category; enhancement expects a list.
+        skills = structured_data.get('skills', [])
+        if isinstance(skills, dict):
+            structured_data['skills'] = list(dict.fromkeys(
+                skill for category in skills.values() if isinstance(category, list)
+                for skill in category if isinstance(skill, str)
+            ))
         
         # Use Groq AI if available, otherwise fall back to rule-based
         if self.use_ai_models and self.groq_client:
