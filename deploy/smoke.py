@@ -56,8 +56,10 @@ def main():
                 with sample.open("rb") as file:
                     resume = check(client.post("/api/v1/resumes/upload", files={
                         "file": ("sample_resume.pdf", file, "application/pdf")}), 201).json()
+                original = check(client.get(f'/api/v1/resumes/{resume["resume_id"]}/download'))
+                assert original.content == sample.read_bytes()
                 check(client.delete(f'/api/v1/resumes/{resume["resume_id"]}'))
-                print("PASS PDF upload, parsing, and deletion")
+                print("PASS PDF upload, parsing, original download, and deletion")
             else:
                 print("SKIP sample PDF upload: sample file not present")
         finally:

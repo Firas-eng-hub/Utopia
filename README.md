@@ -2,6 +2,12 @@
 
 > **A comprehensive, production-ready AI-powered career platform with 5 integrated modules for job seekers and professionals in MENA & Sub-Saharan Africa.**
 
+**[Open the live UtopiaHire demo](https://utopiahire-firas.onrender.com)**
+
+The demo uses Render's free tier and may take a minute to wake up. Its free
+PostgreSQL database expires on **17 November 2026**. AI and external job providers
+need their own API keys; see [deployment details](docs/DEPLOYMENT.md).
+
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19.1.1-61DAFB.svg)](https://react.dev/)

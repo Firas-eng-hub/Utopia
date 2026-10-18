@@ -7,8 +7,18 @@ web service's ephemeral filesystem. The backend needs
 OCR system packages and persistent uploaded files; the Vercel static deployment
 alone does not run those services.
 
-No live deployment URL is assigned by these files. Your hosting accounts must be
-connected, the services created, and the public checks below passed first.
+## Current live demo
+
+- Application: https://utopiahire-firas.onrender.com
+- API readiness: https://utopiahire-firas.onrender.com/ready
+- API documentation: https://utopiahire-firas.onrender.com/api/v1/docs
+- Hosting: free Render web service and PostgreSQL, with database-backed uploads.
+- Database expiry: **17 November 2026**. Export or migrate it before expiry.
+
+Registration, login, protected APIs, interview startup, resume upload/download,
+and SPA routes passed public smoke checks. AI inference and external job-provider
+subscriptions are not configured; they require your own provider keys. Free web
+services sleep when idle, so the first request can take about a minute.
 
 ## Run the entire application on Render
 
