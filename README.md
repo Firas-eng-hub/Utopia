@@ -8,6 +8,17 @@ The demo uses Render's free tier and may take a minute to wake up. Its free
 PostgreSQL database expires on **17 November 2026**. AI and external job providers
 need their own API keys; see [deployment details](docs/DEPLOYMENT.md).
 
+### Hosting and uptime checks
+
+Render serves the React frontend and FastAPI backend at the same URL. PostgreSQL
+stores account data and uploaded resumes, so uploads survive service restarts.
+
+**Cron ping URL:** https://utopiahire-firas.onrender.com/ready
+
+Use an HTTP **GET** every **10 minutes**. HTTP **200** means the API and database
+are ready. Pings can reduce idle cold starts, but do not extend the free database's
+expiry or guarantee uptime. See [cron setup and hosting limits](docs/DEPLOYMENT.md#uptime-monitoring-and-cron-pings).
+
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19.1.1-61DAFB.svg)](https://react.dev/)

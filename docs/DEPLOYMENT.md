@@ -20,6 +20,34 @@ and SPA routes passed public smoke checks. AI inference and external job-provide
 subscriptions are not configured; they require your own provider keys. Free web
 services sleep when idle, so the first request can take about a minute.
 
+## Uptime monitoring and cron pings
+
+Configure an HTTP monitoring service such as cron-job.org with:
+
+| Setting | Value |
+| --- | --- |
+| URL | `https://utopiahire-firas.onrender.com/ready` |
+| Method | `GET` |
+| Schedule | Every 10 minutes |
+| Expected status | HTTP `200` |
+| Expected JSON | `{"status":"ready"}` |
+| Timeout | Up to 120 seconds, if the monitoring service supports it |
+| Authentication | None |
+
+The readiness endpoint checks database access and returns HTTP `503` when it
+cannot reach the database. A cold start may exceed a monitoring provider's timeout.
+
+For a Linux crontab, use:
+
+```cron
+*/10 * * * * curl --fail --silent --show-error --max-time 120 https://utopiahire-firas.onrender.com/ready > /dev/null
+```
+
+This is an example configuration; no external cron job is created by this
+repository. Pings can reduce idle cold starts, but do not guarantee continuous
+uptime, bypass Render's free-tier limits, or extend the database expiry on
+**17 November 2026**. Back up or migrate PostgreSQL before that date.
+
 ## Run the entire application on Render
 
 The production container builds React and serves its static files alongside
