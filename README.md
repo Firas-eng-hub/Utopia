@@ -8,6 +8,19 @@ The demo uses Render's free tier and may take a minute to wake up. Its free
 PostgreSQL database expires on **17 November 2026**. AI and external job providers
 need their own API keys; see [deployment details](docs/DEPLOYMENT.md).
 
+### Try the demo account
+
+Open the [login page](https://utopiahire-firas.onrender.com/login) and use:
+
+| Field | Value |
+| --- | --- |
+| Email | `demo.utopiahire@example.com` |
+| Password | `UtopiaDemo2026!` |
+
+This is a shared public account. Use sample data only; everyone using it can see
+its data. Please do not change its password or delete the account. Create your
+own account to keep your activity separate.
+
 ### Hosting and uptime checks
 
 Render serves the React frontend and FastAPI backend at the same URL. PostgreSQL
